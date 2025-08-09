@@ -1,0 +1,22 @@
+{
+  "name": "generate-cyclonedx-sbomv1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "azure-pipelines-task-lib": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^24.2.1",
+    "@types/q": "^1.5.8",
+    "sync-request": "^6.1.0"
+  }
+}

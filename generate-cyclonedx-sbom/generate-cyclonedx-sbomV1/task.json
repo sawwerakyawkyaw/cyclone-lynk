@@ -1,0 +1,63 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Microsoft/azure-pipelines-task-lib/master/tasks.schema.json",
+  "id": "052A04A9-D2EC-4ED8-AE66-219AA55E3471",
+  "name": "genereate-cyclonedx-sbom",
+  "friendlyName": "Generate CycloneDX SBOM",
+  "description": "Generate CycloneDX Software Bill of Materials (SBOM) for .NET projects using CycloneDX module for .NET",
+  "helpMarkDown": "",
+  "category": "Utility",
+  "author": "Saw Wera Kyaw Kyaw",
+  "version": {
+    "Major": 1,
+    "Minor": 0,
+    "Patch": 0
+  },
+  "instanceNameFormat": "Generating CycloneDX SBOM for $()",
+  "inputs": [
+    {
+      "name": "sourcesDirectory",
+      "type": "filePath",
+      "label": "Path to the sources directory",
+      "defaultValue": "$(Build.SourcesDirectory)",
+      "required": false,
+      "helpMarkDown": "Path to the sources directory"
+    },
+    {
+      "name": "solutionFile",
+      "type": "filePath",
+      "label": "Path to a solution file (.sln)",
+      "defaultValue": "$(Build.SourcesDirectory)",
+      "required": true,
+      "helpMarkDown": "Path to the solution file"
+    },
+    {
+      "name": "outputDirectory",
+      "type": "filePath",
+      "label": "The directory to expor the SBOM.",
+      "defaultValue": "$(Build.ArtifactStagingDirectory)",
+      "required": true,
+      "helpMarkDown": "Path to the output directory"
+    },
+    {
+      "name": "filename",
+      "type": "string",
+      "label": "A filename of the output SBOM.",
+      "defaultValue": "bom",
+      "required": false,
+      "helpMarkDown": "The name of the output file"
+    },
+    {
+      "name": "outputFormat",
+      "type": "string",
+      "label": "The format of the output SBOM.",
+      "defaultValue": "json",
+      "required": false,
+      "helpMarkDown": "The format of the output SBOM"
+    }
+  ],
+  "execution": {
+    "Node20_1": {
+      "target": "index.js"
+    }
+  }
+}

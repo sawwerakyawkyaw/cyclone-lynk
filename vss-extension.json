@@ -1,0 +1,30 @@
+{
+  "manifestVersion": 1,
+  "id": "generate-cyclonedx-sbom",
+  "name": "Generate CycloneDX SBOM",
+  "version": "1.0.0",
+  "publisher": "sawwerakyawkyaw",
+  "targets": ["Microsoft.VisualStudio.Services"],
+  "description": "Generate CycloneDX compatible Software Bill of Materials (SBOM) for Azure DevOps repositories.",
+  "icons": {
+    "default": "images/icon.png"
+  },
+  "categories": ["Azure Pipelines"],
+  "tags": ["sbom", "cyclonedx", "security", "devops"],
+  "files": [
+    {
+      "path": "generate-cyclonedx-sbom/generate-cyclonedx-sbomV1",
+      "addressable": true
+    }
+  ],
+  "contributions": [
+    {
+      "id": "GenerateSbom",
+      "type": "ms.vss-distributed-task.task",
+      "targets": ["ms.vss-distributed-task.tasks"],
+      "properties": {
+        "name": "generate-cyclonedx-sbom/generate-cyclonedx-sbomV1/task.json"
+      }
+    }
+  ]
+}

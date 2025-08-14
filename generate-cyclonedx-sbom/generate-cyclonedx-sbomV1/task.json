@@ -1,9 +1,9 @@
 {
   "$schema": "https://raw.githubusercontent.com/Microsoft/azure-pipelines-task-lib/master/tasks.schema.json",
   "id": "052A04A9-D2EC-4ED8-AE66-219AA55E3471",
-  "name": "genereate-cyclonedx-sbom",
-  "friendlyName": "Generate CycloneDX SBOM",
-  "description": "Generate CycloneDX Software Bill of Materials (SBOM) for .NET projects using CycloneDX module for .NET",
+  "name": "GenerateSbom",
+  "friendlyName": "Generate SBOM (CycloneDX, multi-ecosystem)",
+  "description": "Generate CycloneDX compatible Software Bill of Materials (SBOM) for Azure Devops repositories (currently only support for .NET projects using CycloneDX module for .NET).",
   "helpMarkDown": "",
   "category": "Utility",
   "author": "Saw Wera Kyaw Kyaw",
@@ -12,47 +12,146 @@
     "Minor": 0,
     "Patch": 0
   },
-  "instanceNameFormat": "Generating CycloneDX SBOM for $()",
+  "instanceNameFormat": "Generate SBOM: $(solutionFilePath)",
+  "groups": [
+    {
+      "name": "moreOptions",
+      "displayName": "More Options",
+      "isExpanded": false
+    }
+  ],
   "inputs": [
     {
-      "name": "sourcesDirectory",
+      "name": "solutionFilePath",
       "type": "filePath",
-      "label": "Path to the sources directory",
-      "defaultValue": "$(Build.SourcesDirectory)",
-      "required": false,
-      "helpMarkDown": "Path to the sources directory"
-    },
-    {
-      "name": "solutionFile",
-      "type": "filePath",
-      "label": "Path to a solution file (.sln)",
-      "defaultValue": "$(Build.SourcesDirectory)",
+      "label": "The path to a .sln file or the path to a directory which will be recursively analyzed for packages.config files",
+      "defaultValue": "",
       "required": true,
-      "helpMarkDown": "Path to the solution file"
+      "helpMarkDown": "The path to a .sln file or the path to a directory which will be recursively analyzed for packages.config files"
     },
     {
       "name": "outputDirectory",
       "type": "filePath",
-      "label": "The directory to expor the SBOM.",
-      "defaultValue": "$(Build.ArtifactStagingDirectory)",
+      "label": "The directory to write the SBOM.",
+      "defaultValue": "$(Build.ArtifactStagingDirectory)/Generated-SBOM",
       "required": true,
-      "helpMarkDown": "Path to the output directory"
+      "helpMarkDown": "Path to the directory to write the SBOM"
     },
     {
       "name": "filename",
       "type": "string",
-      "label": "A filename of the output SBOM.",
-      "defaultValue": "bom",
-      "required": false,
-      "helpMarkDown": "The name of the output file"
+      "label": "Optionally provide a filename for the SBOM (default: bom.json)",
+      "defaultValue": "bom.json",
+      "required": true,
+      "helpMarkDown": "Optionally provide a filename for the SBOM (default: bom.json)"
     },
     {
       "name": "outputFormat",
-      "type": "string",
-      "label": "The format of the output SBOM.",
+      "type": "pickList",
+      "options": {
+        "xml": "xml",
+        "json": "json",
+        "unsafeJson": "unsafeJson"
+      },
+      "label": "Select the SBOM output format: xml, json, or unsafeJson (default: json)",
       "defaultValue": "json",
+      "required": true,
+      "helpMarkDown": "Select the SBOM output format: xml, json, or unsafeJson (default: json)"
+    },
+    {
+      "name": "disablePackageRestore",
+      "type": "boolean",
+      "label": "Optionally disable package restore",
+      "defaultValue": false,
       "required": false,
-      "helpMarkDown": "The format of the output SBOM"
+      "helpMarkDown": "Disable automatic package restore during SBOM generation."
+    },
+    {
+      "name": "setVersion",
+      "type": "string",
+      "label": "Set Version",
+      "defaultValue": "0.0.0",
+      "required": false,
+      "helpMarkDown": "Override the default SBOM metadata component version (defaults to 0.0.0)"
+    },
+    {
+      "name": "setType",
+      "type": "pickList",
+      "label": "Set Type",
+      "options": {
+        "Application": "Application",
+        "Container": "Container",
+        "Data": "Data",
+        "Device": "Device",
+        "Device driver": "Device driver",
+        "File": "File",
+        "Firmware": "Firmware",
+        "Framework": "Framework",
+        "Library": "Library",
+        "Machine learning model": "Machine learning model",
+        "Null": "Null",
+        "Operating system": "Operating system",
+        "Platform": "Platform"
+      },
+      "defaultValue": "application",
+      "required": false,
+      "helpMarkDown": "Override the default SBOM metadata component type (defaults to application)"
+    },
+    {
+      "groupName": "moreOptions",
+      "name": "excludeDevDependencies",
+      "type": "boolean",
+      "label": "Exclude Development Dependencies",
+      "defaultValue": false,
+      "required": false,
+      "helpMarkDown": "Exclude development dependencies from the SBOM."
+    },
+    {
+      "groupName": "moreOptions",
+      "name": "excludeTestProjects",
+      "type": "boolean",
+      "label": "Exclude Test Projects",
+      "defaultValue": false,
+      "required": false,
+      "helpMarkDown": "Exclude test projects from the SBOM."
+    },
+    {
+      "groupName": "moreOptions",
+      "name": "excludeFilterList",
+      "type": "multiLine",
+      "label": "List of dependencies to exclude",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Add a list of dependencies to exclude in form 'name1@version1,name2@version2'. Transitive dependencies will also be removed."
+    },
+    {
+      "groupName": "moreOptions",
+      "name": "enableGithubLicenses",
+      "type": "boolean",
+      "label": "Enables GitHub license resolution",
+      "defaultValue": false,
+      "required": false,
+      "helpMarkDown": "Enables GitHub license resolution. If set you also need to provide a GitHub username and personal access token."
+    },
+    {
+      "groupName": "moreOptions",
+      "name": "githubUsername",
+      "type": "string",
+      "label": "GitHub Username",
+      "defaultValue": "",
+      "required": true,
+      "helpMarkDown": "Provide a GitHub username for license resolution.",
+      "visibleRule": "enableGithubLicenses == true"
+    },
+    {
+      "groupName": "moreOptions",
+      "name": "githubToken",
+      "type": "string",
+      "label": "GitHub Personal Access Token",
+      "defaultValue": "",
+      "required": true,
+      "helpMarkDown": "Provide a GitHub personal access token for license resolution.",
+      "visibleRule": "enableGithubLicenses == true"
     }
   ],
   "execution": {
